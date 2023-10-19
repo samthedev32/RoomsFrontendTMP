@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rooms</title>
+    
+    <link rel="icon" 
+    type="image/png" 
+    href="/favicon.ico">
+    
+    <style>
+        
+        
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+
+            font-family: Verdana, sans-serif;
+        }
+        
+        .container {
+            display: flex;
+            height: 100%;
+            
+        }
+        
+        .sidebar {
+            flex: 0 0 18%; /* Adjust the width as needed */
+            margin: 1%;
+            margin-right: 0.5%;
+            padding: 0.3%;
+            background-color: #f1f1f1;
+            border-radius: 10px;
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 0.3%;
+            color: white;
+            background-color: black;
+            border-radius: 10px;
+            margin: 1%;
+            margin-left: 0.5%;
+            overflow-y: scroll;
+            overflow-x: auto;
+        }
+        
+        /* Optional: Add some styles to make the sidebar always visible */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+        }
+        
+        /* Optional: Add some styles to make the sidebar sticky */
+        .sidebar {
+            position: sticky;
+            top: 0;
+        }
+        
+        /* Optional: Add some styles to add a box shadow to the sidebar */
+        .sidebar {
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .inputMessage {
+            display: block;
+            position: fixed;
+            left: 50%;
+            bottom: 0;
+            transform: translate(-15%, 0%);
+            
+            background-color: gray;
+            padding: 10px;
+            
+            margin: 0 auto;
+            margin-bottom: 2%;
+            
+            
+            border-radius: 15px;
+        }
+        
+        #messages {
+            font-size: xx-large;
+        }
+        
+        /* bottom part of sidebar */
+        .sidebar{
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .middle, .top, .bottom{
+            height: 100%;
+            
+            background-color: #d1d1d1;
+            border-radius: 10px;
+            margin: 10px;
+            padding: 2%;
+            width: 90%;
+        }
+        
+        .middle{
+            flex: 0 0 70%;
+            overflow-y: scroll;
+            overflow-x: auto;
+        }
+        
+        .bottom, .top{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
+            width: 85%;
+        }
+        
+        #userName, #roomCode, #rightButton{
+            padding: 7px;
+            padding-bottom: 3px;
+            padding-top: 3px;
+            background-color: black;
+            color: white;
+            border-radius: 15px;
+            text-align: center;
+            font-size: large;
+            width: 70%;
+        }
+        
+        
+        #rightButton{
+            width: 12%;
+        }
+        
+        
+        .switch {
+            display: none; /* Hide the radio buttons */
+        }
+        
+        .switch + label {
+            cursor: pointer;
+            padding: 5px 10px;
+            background-color: #eaeaea;
+
+            margin: 10px;
+        }
+        
+        .switch:checked + label {
+            background-color: #a3a3a3;
+            color: #ffffff;
+        }
+        
+        
+    </style>
+</head>
+<body style="background-color: grey;">
+    
+    <div class="container">
+        <div class="sidebar">
+            <!--
+                top part (join and stuff)
+            -->
+            <div class="top" id="top">
+                
+                <form onsubmit="joinRoom(); return false" id="roomForm">
+                    <input type="text" id="roomCode" placeholder="Room code" maxlength="8"> 
+                    <input type="submit" id="rightButton" value="Join">
+                </form>
+                
+                
+            </div>
+            
+            <!--
+                rooms
+            -->
+            <div class="middle" id="middle">
+                <br>
+                
+                <!-- <div>
+                    <input type="radio" class="switch" id="00000000" name="switch" checked>
+                    <label for="00000000">Main</label>
+                </div> -->
+                
+                
+            </div>
+            
+            <!--
+                bottom part (username for now, sign in later)
+            -->
+            <div class="bottom">
+                <input type="text" name="UserName" id="userName" maxlength="16" onblur="isEmpty()">
+            </div>
+            
+            
+        </div>
+        
+        <div class="content" >
+            <div id="DispName">
+                You are not in any room yet
+            </div>
+            <hr>
+            <div id="messages">
+                <!--
+                    messages displayed here
+                -->
+                
+            </div>
+            <br> <br> <br> <br> <br>
+        </div>
+    </div>
+    
+    <div class="inputMessage">
+        <form onsubmit="readMessage(); return false">
+            <input type="text" id="input" disabled> 
+        </form>
+    </div>
+</body>
+</html>
+
+<script>
+    
+    // CLASSSES
+    class Message { 
+        data
+        
+        author
+        
+        room
+        
+        date 
+        
+        constructor (tData, tAuthor, tRoom, tDate){
+            this.data = tData
+            this.author = tAuthor
+            this.room = tRoom
+            this.date = tDate
+        }
+    }
+    
+    class User {
+        id
+        
+        name
+        
+        constructor  (tId, tName){
+            this.id = tId
+            this.name = tName
+        }
+    }
+    
+    class Room {
+        name 
+        
+        messages 
+        
+        id 
+        
+        constructor (tId , tName ){
+            if(tId.length != 8){
+                throw error
+            }
+            
+            this.name = tName
+            this.id = tId
+            this.messages = []
+        }
+    }
+    
+    
+    
+    // displays one message
+    function dispMessages(message){ 
+        var te = document.getElementById("messages")
+        
+        var tempText =  document.createElement("div")
+        
+        if (message.author.id == userID){
+            
+            
+            tempText.innerText = message.data
+            tempText.style.textAlign = "right"
+            
+        }
+        else {
+            
+            
+            tempText.innerText += message.author.name + " : " +message.data
+            tempText.style.textAlign = "left"
+            
+        }
+        
+        te.appendChild(tempText)
+        
+        te.innerHTML += "<br><br>"
+    }
+    
+    // gets a random user id
+    const userID = Math.round(Math.random() * 8191)
+    const thisUser = new User(userID, "")
+    var tempCode = ""
+    document.getElementById("userName").value = userID
+    
+    var currentRoom = null
+    
+    // starts the socket
+    const socket = new WebSocket("ws://"+window.location.hostname+":443")
+    
+    // called when a message is received in the socket
+    socket.addEventListener("message", function(event){
+        
+        UnCompressed = JSON.parse(event.data)
+        
+        // Get the content element
+        var contentElement = document.querySelector('.content');
+        
+        // Scroll to the bottom
+        contentElement.scrollTop = contentElement.scrollHeight;
+        
+        if(UnCompressed.room.id == currentRoom){
+            dispMessages(UnCompressed)
+        }
+        
+    })
+    
+    //reads the value and sends the message of text input
+    function readMessage(){
+
+            
+        
+        sendMessage(document.getElementById("input").value, currentRoom)
+        document.getElementById("input").value = ""
+    }
+
+
+    // sends a message
+    function sendMessage(MessageSend, toRoom){
+        thisUser.name = document.getElementById("userName").value
+        
+
+        if (MessageSend != ""){
+            socket.send(JSON.stringify( new Message(MessageSend, thisUser, new Room(toRoom, ""), 0)))
+        }
+    }
+    
+    //if username is empty
+    function isEmpty(){
+        if (document.getElementById("userName").value == ""){
+            document.getElementById("userName").value = userID
+        }
+        
+    }
+    
+    // joins a room
+    function joinRoom(){
+        const roomCode = document.getElementById("roomCode").value
+        const url = "/room/" + roomCode
+        if (roomCode.length == 8){
+            const response = httpGet(url)
+            
+            // if the room does not exist
+            if(response == "null"){
+                tempCode = roomCode
+                document.getElementById("top").innerHTML = "<form onsubmit='createRoom(); return false' id='roomForm'><input type='text' id='roomCode' placeholder='Room name' maxlength='16'> <input type='submit' id='rightButton' value='Create' ></form>"
+            }
+            
+            // if the room exists
+            else{
+                var parsed = JSON.parse(response)
+                addRoom(parsed.id, parsed.name)
+                document.getElementById("roomCode").value = ""
+            }
+        }
+        
+        
+        
+    }
+    
+    function httpGet(theUrl)
+    {
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
+        xmlHttp.send( null );
+        return xmlHttp.responseText;
+    }
+
+    function addRoom(roomID, roomName){
+        var NewId = new String(roomID)
+        while(NewId.length < 8){
+            NewId = "0" + NewId
+        }
+
+        var newButton = document.createElement("div")
+
+        var tMid = document.getElementById("middle")
+        
+        console.log('<div> <input type="radio" class="switch" id="'+ NewId+ '" name="switch" '+ 'onclick="dispRoom(new String("'+NewId +'"))" > <label for="'+ NewId + '">'+ roomName + '</label> </divd>' + "<br><br><br>")
+
+        
+    var onClickHandler = 'dispRoom(new String("' + NewId + '"))';
+
+    newButton.innerHTML = '<div> <input type="radio" class="switch" id="' + NewId + '" name="switch" onclick="dispRoom(new String(\'' + NewId + '\'))" > <label for="' + NewId + '">' + roomName + '</label> </div>' + "<br><br><br>";
+
+            newButton.oncl
+
+        tMid.appendChild(newButton)
+    }
+
+    function dispRoom(roomDisp){
+        currentRoom = roomDisp
+        document.getElementById("input").disabled = false
+
+        const url = "/room/" + roomDisp
+        const response = httpGet(url)
+
+        const parsedResponse = JSON.parse(response)
+
+        document.getElementById("DispName").innerText = parsedResponse.name
+
+        parsedResponse.messages.forEach(element => {
+            dispMessages(element)
+        });
+
+        var contentElement = document.querySelector('.content');
+
+        // Scroll to the bottom
+        contentElement.scrollTop = contentElement.scrollHeight;
+    }
+
+    function createRoom(){
+
+        sendMessage(document.getElementById("roomCode").value, tempCode)
+
+        addRoom(tempCode, document.getElementById("roomCode").value)
+
+        tempCode = null
+        document.getElementById("top").innerHTML = '  <form onsubmit="joinRoom(); return false" id="roomForm"><input type="text" id="roomCode" placeholder="Room code" maxlength="8">   <input type="submit" id="rightButton" value="Join"></form> '
+    }
+
+/*     
+                <form onsubmit="joinRoom(); return false" id="roomForm">
+                    <input type="text" id="roomCode" placeholder="Room code" maxlength="8"> 
+                    <input type="submit" id="rightButton" value="Join">
+                </form> */
+
+/*    
+                <form onsubmit="createRoom(); return false" id="roomForm">
+                    <input type="text" id="roomCode" placeholder="Room name" maxlength="16"> 
+                    <input type="submit" id="rightButton" value="Join" >
+                </form> */
+
+</script>
